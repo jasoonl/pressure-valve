@@ -252,7 +252,7 @@ body::before{content:"";position:fixed;inset:-20%;z-index:-1;pointer-events:none
     radial-gradient(38% 34% at 22% 24%,rgba(0,113,227,.20),transparent 70%),
     radial-gradient(34% 30% at 78% 18%,rgba(175,82,222,.16),transparent 70%),
     radial-gradient(40% 36% at 70% 82%,rgba(255,159,10,.13),transparent 70%);
-  animation:aurora 38s ease-in-out infinite alternate}
+  }
 @keyframes aurora{to{transform:translate3d(3%,-2%,0) rotate(6deg) scale(1.08)}}
 .plate h1{background:linear-gradient(110deg,var(--label) 38%,color-mix(in srgb,var(--label) 35%,var(--blue)) 50%,var(--label) 62%) 0 0/250% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:shine 7s linear infinite}
 @keyframes shine{from{background-position:150% 0}to{background-position:-50% 0}}
@@ -303,6 +303,56 @@ body::before{content:"";position:fixed;inset:-20%;z-index:-1;pointer-events:none
   .valve.redline svg{animation:none;filter:drop-shadow(0 0 6px var(--heat))}
   .evaporate{filter:none;transform:none;transition:opacity .3s ease}
 }
+
+/* ================= Polish: dark instrument card, glowing gauge, glass valve, richer chat ================= */
+:root{--page:linear-gradient(160deg,#F7F8FC 0%,#E8ECF6 55%,#F2EEF8 100%)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--page:linear-gradient(160deg,#07080C 0%,#0B0E18 60%,#100B16 100%)}}
+:root[data-theme="dark"]{--page:linear-gradient(160deg,#07080C 0%,#0B0E18 60%,#100B16 100%)}
+body{background:var(--page) fixed}
+body::before{opacity:1;background:
+  radial-gradient(40% 38% at 20% 22%,rgba(10,132,255,.30),transparent 70%),
+  radial-gradient(36% 34% at 82% 16%,rgba(191,90,242,.24),transparent 70%),
+  radial-gradient(42% 40% at 72% 86%,rgba(255,159,10,.20),transparent 70%)}
+.panel{--label:#F5F5F7;--label2:#A6A8B2;--sep:rgba(255,255,255,.14);--fill:rgba(255,255,255,.08);--fill2:rgba(255,255,255,.15);--card:#20232E;--cool:#64D2FF;--warm:#FF9F0A;--heat-text:#FF6961;--link:#64A8FF;
+  justify-content:space-between;gap:10px;padding:26px 24px 22px;color:var(--label);
+  background:radial-gradient(120% 70% at 50% 0%,#262B3C 0%,#141722 55%,#0C0E15 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),inset 0 0 0 .5px rgba(255,255,255,.08),0 30px 60px -24px rgba(8,10,24,.55),0 2px 6px rgba(0,0,0,.2)}
+.panel .plate h1{font-size:28px}
+.panel .mode:has(input:checked){background:rgba(255,255,255,.2);box-shadow:0 1px 2px rgba(0,0,0,.4),inset 0 .5px 0 rgba(255,255,255,.25)}
+.panel::after{background:radial-gradient(300px circle at var(--sx,50%) var(--sy,50%),rgba(120,170,255,.14),transparent 70%)}
+.g-face{stroke:rgba(255,255,255,.07);stroke-width:1}
+.g-track{stroke:rgba(255,255,255,.08)}
+.g-fill{filter:drop-shadow(0 0 7px rgba(255,159,10,.55))}
+.g-red{filter:drop-shadow(0 0 4px rgba(255,69,58,.7))}
+.g-knob{filter:drop-shadow(0 0 6px rgba(255,255,255,.55)) drop-shadow(0 2px 3px rgba(0,0,0,.5))}
+.psi{font-size:60px;text-shadow:0 0 22px rgba(255,255,255,.12)}
+.readout-wrap[data-level="critical"] .psi,.readout-wrap[data-level="redline"] .psi{text-shadow:0 0 24px rgba(255,69,58,.65)}
+.state{bottom:auto;top:67%}
+.dial{margin-bottom:-12%}
+@media (min-width:761px){.dial{max-width:min(300px,36vh)}}
+.valve{background:radial-gradient(circle at 34% 24%,rgba(255,255,255,.34),rgba(255,255,255,.06) 42%,transparent 70%),linear-gradient(160deg,#2B2F40,#14161F);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.3),inset 0 -6px 14px rgba(0,0,0,.4),0 0 0 .5px rgba(255,255,255,.12),0 12px 26px rgba(0,0,0,.55)}
+@media (min-width:761px){.valve{width:116px}}
+.v-track{stroke:rgba(255,255,255,.1)}
+.v-rim,.v-spoke{stroke:#C9CCD6}
+.v-hub{fill:#20232E;stroke:#C9CCD6}
+.v-hub-dot{fill:#C9CCD6}
+.valve-hint{color:#A6A8B2}
+.mode-caption{color:#A6A8B2}
+
+.msg.user .text{background:linear-gradient(180deg,#3AA0FF 0%,#0A72E8 100%);box-shadow:0 1px 2px rgba(0,60,140,.3),0 6px 16px -6px rgba(10,114,232,.5)}
+.msg.bot .text{background:rgba(255,255,255,.82);box-shadow:inset 0 0 0 .5px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.05),0 8px 18px -10px rgba(30,40,80,.25)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .msg.bot .text{background:rgba(255,255,255,.09);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.1),0 8px 18px -10px rgba(0,0,0,.6)}}
+:root[data-theme="dark"] .msg.bot .text{background:rgba(255,255,255,.09);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.1),0 8px 18px -10px rgba(0,0,0,.6)}
+#msg{background:color-mix(in srgb,var(--card) 80%,transparent);border-color:transparent;box-shadow:inset 0 0 0 .5px var(--sep),0 4px 14px -6px rgba(20,30,70,.25)}
+.send{background:linear-gradient(180deg,#3AA0FF,#0A72E8);box-shadow:0 4px 12px -2px rgba(10,114,232,.6)}
+.chip[aria-pressed="true"]{background:linear-gradient(180deg,#3AA0FF,#0A72E8);box-shadow:0 4px 12px -4px rgba(10,114,232,.6)}
+#target{background:color-mix(in srgb,var(--card) 70%,transparent);box-shadow:inset 0 0 0 .5px var(--sep)}
+.card{background:color-mix(in srgb,var(--card) 92%,transparent);box-shadow:inset 0 0 0 .5px var(--sep),0 18px 40px -20px rgba(20,30,80,.35)}
+@media (max-width:760px){.panel{border-radius:0 0 26px 26px;padding:12px 16px 14px;justify-content:initial}.panel .plate h1{font-size:21px}.dial{margin-bottom:0}.state{top:auto;bottom:1%}}
+@media (prefers-reduced-transparency: reduce){.msg.bot .text,.card{-webkit-backdrop-filter:none;backdrop-filter:none}}
+@media (max-width:760px){.panel .psi{font-size:30px}.panel .plate h1{font-size:21px}.target-bar{background:color-mix(in srgb,var(--card) 90%,transparent)}.dial{width:140px;max-width:140px}.state{font-size:10px}}
+.gauge{pointer-events:none}.valve-wrap{position:relative;z-index:2}
 </style>
 </head>
 <body>
@@ -440,6 +490,9 @@ const gaugeSvg = $('#gauge');
   const defs = svgEl('defs', {}, svg);
   const grad = svgEl('linearGradient', { id: 'heatGrad', gradientUnits: 'userSpaceOnUse', x1: 20, y1: 0, x2: 180, y2: 0 }, defs);
   [['0', '#64D2FF'], ['.42', '#FFD60A'], ['.72', '#FF9F0A'], ['1', '#FF453A']].forEach(([o, c]) => svgEl('stop', { offset: o, 'stop-color': c }, grad));
+  const face = svgEl('radialGradient', { id: 'face', cx: '50%', cy: '38%', r: '70%' }, defs);
+  svgEl('stop', { offset: '0', 'stop-color': '#232838' }, face); svgEl('stop', { offset: '1', 'stop-color': '#0A0C12' }, face);
+  svgEl('circle', { cx: 100, cy: 100, r: 70, fill: 'url(#face)', class: 'g-face' }, svg);
   svgEl('path', { d: arcPath(angleFor(0), angleFor(MAX), 80), class: 'g-track' }, svg);
   svgEl('path', { d: arcPath(angleFor(RED), angleFor(MAX), 93), class: 'g-red' }, svg);
   for (let p = 0; p <= MAX; p += 10) {
@@ -1037,10 +1090,10 @@ function renderHold() {
   wheel.setAttribute('transform', `rotate(${(hold.p * 300).toFixed(1)} 60 60)`);
 }
 function holdLoop(now) {
-  const dt = Math.min(0.05, (now - hold.prev) / 1000); hold.prev = now;
+  const rawDt = Math.max(0, (now - hold.prev) / 1000), dt = Math.min(0.05, rawDt); hold.prev = now;
   if (hold.active) {
     hold.v = 1000 / HOLD_MS;                       // progress per second while the finger is down
-    hold.p = Math.min(1, hold.p + hold.v * dt);
+    hold.p = Math.min(1, hold.p + hold.v * Math.min(0.25, rawDt)); // real time, so a slow device still takes 1.2s
   } else if (reduceMotion.matches) {
     hold.p = Math.max(0, hold.p - dt / 0.15); hold.v = 0;
   } else {
