@@ -246,6 +246,47 @@ button.pill:focus-visible{outline:2px solid var(--link);outline-offset:2px}
   .help{font-size:11.5px}
 }
 
+/* ---------- React Bits, ported to vanilla: Aurora, Shiny Text, Spotlight Card, Blur Text ---------- */
+body::before{content:"";position:fixed;inset:-20%;z-index:-1;pointer-events:none;opacity:.55;
+  background:
+    radial-gradient(38% 34% at 22% 24%,rgba(0,113,227,.20),transparent 70%),
+    radial-gradient(34% 30% at 78% 18%,rgba(175,82,222,.16),transparent 70%),
+    radial-gradient(40% 36% at 70% 82%,rgba(255,159,10,.13),transparent 70%);
+  animation:aurora 38s ease-in-out infinite alternate}
+@keyframes aurora{to{transform:translate3d(3%,-2%,0) rotate(6deg) scale(1.08)}}
+.plate h1{background:linear-gradient(110deg,var(--label) 38%,color-mix(in srgb,var(--label) 35%,var(--blue)) 50%,var(--label) 62%) 0 0/250% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:shine 7s linear infinite}
+@keyframes shine{from{background-position:150% 0}to{background-position:-50% 0}}
+.panel,.card{position:relative;overflow:hidden}
+.panel{overflow-y:auto}
+.panel::after,.card::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;opacity:0;transition:opacity .35s ease;
+  background:radial-gradient(260px circle at var(--sx,50%) var(--sy,50%),rgba(0,113,227,.10),transparent 70%)}
+.panel.lit::after,.card.lit::after{opacity:1}
+.bw{display:inline-block;animation:blurin .55s cubic-bezier(.2,.8,.2,1) backwards;animation-delay:calc(var(--i) * 38ms)}
+@keyframes blurin{from{opacity:0;filter:blur(8px);transform:translateY(6px)}}
+@media (prefers-reduced-motion: reduce){
+  body::before,.plate h1{animation:none}
+  .bw{animation:none}
+}
+@media (prefers-reduced-transparency: reduce){body::before{display:none}}
+
+/* ---------- Venting: shake, flash, shockwave ---------- */
+.app{will-change:auto}
+.pills{display:inline-flex;gap:6px;flex-wrap:wrap}
+.pill[aria-pressed="false"]#soundBtn{opacity:.7}
+#flash{position:fixed;inset:0;z-index:29;pointer-events:none;opacity:0;
+  background:radial-gradient(120% 90% at 50% 100%,transparent 28%,rgba(255,59,48,.45) 100%)}
+#flash.go{animation:flash .85s cubic-bezier(.2,.7,.2,1)}
+@keyframes flash{0%{opacity:0}12%{opacity:1}100%{opacity:0}}
+.shock{position:fixed;z-index:28;width:90px;height:90px;margin:-45px 0 0 -45px;border-radius:50%;pointer-events:none;
+  border:3px solid rgba(255,69,58,.8);box-shadow:0 0 24px rgba(255,69,58,.45);animation:shock .95s cubic-bezier(.1,.7,.2,1) forwards}
+.shock.two{border-color:rgba(255,159,10,.7);animation-delay:.11s;animation-duration:1.1s;opacity:0}
+@keyframes shock{0%{transform:scale(.2);opacity:.95}100%{transform:scale(22);opacity:0}}
+@media (prefers-reduced-motion: reduce){
+  .shock{display:none}
+  #flash.go{animation:flash-soft .5s ease-out}
+}
+@keyframes flash-soft{0%{opacity:0}30%{opacity:.7}100%{opacity:0}}
+
 @media (prefers-reduced-transparency: reduce){
   .target-bar,.dock{background:var(--card);-webkit-backdrop-filter:none;backdrop-filter:none}
   .offer{background:var(--card);-webkit-backdrop-filter:none;backdrop-filter:none}
@@ -344,7 +385,7 @@ button.pill:focus-visible{outline:2px solid var(--link);outline-offset:2px}
       <p class="help">If you or someone you know is having a difficult time, free support is available. <b>Call or text 988</b> (Suicide &amp; Crisis Lifeline) · <b>Text HOME to 741741</b> (Crisis Text Line) · <b>911</b> for emergencies (US).</p>
       <p class="fine">
         <span>Nothing here is saved<span class="fine-long">. Close the page and the rant is gone</span>.</span>
-        <button type="button" class="pill" id="engine" data-engine="off" aria-pressed="false" aria-controls="offer">Smart replies: off</button>
+        <span class="pills"><button type="button" class="pill" id="soundBtn" aria-pressed="true">Sound: on</button> <button type="button" class="pill" id="engine" data-engine="off" aria-pressed="false" aria-controls="offer">Smart replies: off</button></span>
       </p>
     </div>
   </main>
@@ -356,6 +397,7 @@ button.pill:focus-visible{outline:2px solid var(--link);outline-offset:2px}
     <button type="button" id="offerNo">Not now</button>
   </div>
 </div>
+<div id="flash" aria-hidden="true"></div>
 <canvas id="steam" aria-hidden="true"></canvas>
 
 <script>
@@ -513,6 +555,28 @@ function make(tag, cls, text) {
   if (text != null) n.textContent = text;
   return n;
 }
+
+/* Blur Text (React Bits): words resolve out of a blur, staggered. textContent stays identical. */
+function blurIn(p, text) {
+  p.textContent = '';
+  const words = text.split(/(\s+)/);
+  if (reduceMotion.matches || words.length > 120) { p.textContent = text; return; }
+  let i = 0;
+  for (const w of words) {
+    if (/^\s+$/.test(w) || !w) { p.append(w); continue; }
+    const sp = make('span', 'bw', w); sp.style.setProperty('--i', Math.min(i++, 24)); p.append(sp);
+  }
+}
+/* Spotlight Card (React Bits): a soft glow follows the pointer across a surface. */
+function spotlight(el) {
+  el.addEventListener('pointermove', (e) => {
+    const r = el.getBoundingClientRect();
+    el.style.setProperty('--sx', (e.clientX - r.left) + 'px'); el.style.setProperty('--sy', (e.clientY - r.top) + 'px');
+    el.classList.add('lit');
+  });
+  el.addEventListener('pointerleave', () => el.classList.remove('lit'));
+}
+spotlight(document.querySelector('.panel'));
 function addUser(text, score) {
   const d = make('div', 'msg user');
   d.append(make('p', 'text', text));
@@ -529,7 +593,7 @@ function addBot(text, opts = {}) {
     dots.setAttribute('aria-label', 'Valve is typing');
     dots.append(make('i'), make('i'), make('i'));
     p.append(dots);
-  } else p.textContent = text;
+  } else blurIn(p, text);
   d.append(p);
   if (opts.builtin) d.append(make('span', 'tag', 'Built-in reply'));
   if (opts.actions) {
@@ -547,7 +611,7 @@ function addBot(text, opts = {}) {
 }
 function setBotText(d, text) {
   const p = d.querySelector('.text');
-  p.textContent = text;
+  if (p.querySelector('.dots')) blurIn(p, text); else p.textContent = text;
   scrollDown();
 }
 function markBuiltin(d) {
@@ -848,6 +912,107 @@ function send(text) {
   reply(a.score, crisis);
 }
 
+/* ================= Venting effects: sound, whole-screen shake, flash, shockwave ================= */
+const fx = (() => {
+  const appEl = document.querySelector('.app'), flashEl = document.getElementById('flash'), soundBtn = document.getElementById('soundBtn');
+  let ac = null, master = null, noiseBuf = null, soundOn = true;
+  function unlock() {
+    if (!ac) {
+      const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
+      try {
+        ac = new AC();
+        const comp = ac.createDynamicsCompressor(); master = ac.createGain(); master.gain.value = 0.8;
+        master.connect(comp); comp.connect(ac.destination);
+        noiseBuf = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
+        const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      } catch (_) { ac = null; return null; }
+    }
+    if (ac.state === 'suspended') ac.resume().catch(() => {});
+    return ac;
+  }
+  const ready = () => soundOn && unlock();
+  const noise = (loop) => { const n = ac.createBufferSource(); n.buffer = noiseBuf; n.loop = !!loop; return n; };
+  function env(g, t, peak, attack, decay) {
+    g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(peak, t + attack); g.gain.exponentialRampToValueAtTime(0.0001, t + attack + decay);
+  }
+  /* Hold: a rising hiss and low rumble that track the ring, so the sound is the pressure building. */
+  let hs = null;
+  function holdBegin() {
+    if (!ready() || hs) return;
+    const t = ac.currentTime;
+    const n = noise(true), bp = ac.createBiquadFilter(), g = ac.createGain(), o = ac.createOscillator(), lp = ac.createBiquadFilter(), og = ac.createGain();
+    bp.type = 'bandpass'; bp.frequency.value = 500; bp.Q.value = 0.8; g.gain.value = 0.0001;
+    o.type = 'sawtooth'; o.frequency.value = 55; lp.type = 'lowpass'; lp.frequency.value = 160; og.gain.value = 0.0001;
+    n.connect(bp); bp.connect(g); g.connect(master); o.connect(lp); lp.connect(og); og.connect(master);
+    n.start(t); o.start(t); hs = { n, o, bp, g, og };
+  }
+  function holdUpdate(p) {
+    if (!hs) return; const t = ac.currentTime;
+    hs.bp.frequency.setTargetAtTime(500 + 3800 * p * p, t, 0.03);
+    hs.g.gain.setTargetAtTime(0.0001 + 0.16 * p, t, 0.03);
+    hs.o.frequency.setTargetAtTime(55 + 70 * p, t, 0.05);
+    hs.og.gain.setTargetAtTime(0.0001 + 0.1 * p, t, 0.05);
+  }
+  function holdStop() {
+    if (!hs) return; const h = hs, t = ac.currentTime; hs = null;
+    h.g.gain.setTargetAtTime(0.0001, t, 0.04); h.og.gain.setTargetAtTime(0.0001, t, 0.04);
+    setTimeout(() => { try { h.n.stop(); h.o.stop(); } catch (_) {} }, 400);
+  }
+  /* Release: valve thump + a long steam hiss that sweeps down + a falling whistle. */
+  function ventSound() {
+    if (!ready()) return; holdStop(); const t = ac.currentTime;
+    const th = ac.createOscillator(), tg = ac.createGain();
+    th.type = 'sine'; th.frequency.setValueAtTime(130, t); th.frequency.exponentialRampToValueAtTime(34, t + 0.35);
+    env(tg, t, 0.9, 0.005, 0.42); th.connect(tg); tg.connect(master); th.start(t); th.stop(t + 0.6);
+    const n = noise(false), hp = ac.createBiquadFilter(), bp = ac.createBiquadFilter(), ng = ac.createGain();
+    hp.type = 'highpass'; hp.frequency.value = 900; bp.type = 'bandpass'; bp.Q.value = 0.6;
+    bp.frequency.setValueAtTime(7000, t); bp.frequency.exponentialRampToValueAtTime(1300, t + 1.5);
+    env(ng, t + 0.01, 0.55, 0.04, 1.5); n.connect(hp); hp.connect(bp); bp.connect(ng); ng.connect(master); n.start(t); n.stop(t + 1.8);
+    const w = ac.createOscillator(), wg = ac.createGain();
+    w.type = 'sine'; w.frequency.setValueAtTime(1500, t); w.frequency.exponentialRampToValueAtTime(260, t + 1.1);
+    env(wg, t + 0.02, 0.07, 0.05, 1.05); w.connect(wg); wg.connect(master); w.start(t); w.stop(t + 1.3);
+  }
+  /* Settled: two soft rising notes when the summary lands. */
+  function chime() {
+    if (!ready()) return; const t = ac.currentTime;
+    [[659.25, 0], [987.77, 0.1]].forEach(([f, d]) => {
+      const o = ac.createOscillator(), g = ac.createGain(); o.type = 'sine'; o.frequency.value = f;
+      env(g, t + d, 0.12, 0.01, 0.7); o.connect(g); g.connect(master); o.start(t + d); o.stop(t + d + 0.9);
+    });
+  }
+  /* Shake: trauma model. Offset scales with trauma squared and decays, so it hits hard and settles smoothly. */
+  let trauma = 0, holdLvl = 0, raf = 0, prev = 0;
+  const wob = (t, a, b, c) => Math.sin(t * a) * 0.55 + Math.sin(t * b + 1.3) * 0.3 + Math.sin(t * c + 2.1) * 0.15;
+  function shakeFrame(now) {
+    const dt = Math.min(0.05, (now - prev) / 1000); prev = now;
+    trauma = Math.max(0, trauma - dt * 0.85);
+    const lvl = Math.max(trauma, holdLvl), k = lvl * lvl, tt = now / 1000;
+    if (lvl < 0.004) { appEl.style.transform = ''; raf = 0; return; }
+    appEl.style.transform = `translate3d(${(wob(tt, 61, 97, 143) * 20 * k).toFixed(2)}px,${(wob(tt, 73, 113, 151) * 15 * k).toFixed(2)}px,0) rotate(${(wob(tt, 53, 89, 131) * 1.5 * k).toFixed(3)}deg)`;
+    raf = requestAnimationFrame(shakeFrame);
+  }
+  const kick = () => { if (!raf) { prev = performance.now(); raf = requestAnimationFrame(shakeFrame); } };
+  const motionOk = () => !reduceMotion.matches;
+  function holdShake(p) { holdLvl = motionOk() ? 0.38 * p : 0; if (holdLvl) kick(); }
+  function flash() { flashEl.classList.remove('go'); void flashEl.offsetWidth; flashEl.classList.add('go'); }
+  function shockwave(x, y) {
+    if (!motionOk()) return;
+    ['', 'two'].forEach((c) => { const e = document.createElement('div'); e.className = 'shock ' + c; e.style.left = x + 'px'; e.style.top = y + 'px'; document.body.append(e); setTimeout(() => e.remove(), 1400); });
+  }
+  /* Everything fires on the same frame: sound, shake, flash, shockwave, haptics. */
+  function ventStart(x, y) {
+    ventSound(); flash(); shockwave(x, y);
+    if (motionOk()) { trauma = 1; holdLvl = 0; kick(); }
+    buzz([45, 30, 90, 30, 140, 40, 60]);
+  }
+  soundBtn.addEventListener('click', () => {
+    soundOn = !soundOn; soundBtn.setAttribute('aria-pressed', String(soundOn)); soundBtn.textContent = 'Sound: ' + (soundOn ? 'on' : 'off');
+    if (soundOn) { unlock(); chime(); } else holdStop();
+  });
+  return { unlock, holdBegin, holdUpdate, holdStop, holdShake, ventStart, chime, get on() { return soundOn; } };
+})();
+
 /* ================= Release valve ================= */
 const valveBtn = $('#valve'), valveWrap = $('#valveWrap'), valveHint = $('#valveHint');
 const ring = $('#valveRing'), wheel = $('#wheel'), spokes = $('#spokes');
@@ -885,7 +1050,8 @@ function holdLoop(now) {
     if (hold.p < 0.002 && Math.abs(hold.v) < 0.02) { hold.p = 0; hold.v = 0; }
   }
   renderHold();
-  if (hold.active && hold.p >= 1) { hold.active = false; hold.raf = 0; valveBtn.classList.remove('holding'); vent(); return; }
+  fx.holdUpdate(hold.p); fx.holdShake(hold.active ? hold.p : 0);
+  if (hold.active && hold.p >= 1) { fx.holdStop(); hold.active = false; hold.raf = 0; valveBtn.classList.remove('holding'); vent(); return; }
   if (hold.active || hold.p > 0) hold.raf = requestAnimationFrame(holdLoop);
   else hold.raf = 0;
 }
@@ -895,12 +1061,14 @@ function holdStart() {
   if (venting || hold.active) return;
   if (!canVent()) { hint('Nothing to vent yet'); return; }
   hold.active = true; valveBtn.classList.add('holding');
+  fx.unlock(); fx.holdBegin();
   buzz(8);
   runHold();
 }
 function holdEnd() {
   if (!hold.active) return;
   hold.active = false; valveBtn.classList.remove('holding');
+  fx.holdStop(); fx.holdShake(0);
   if (hold.p < 0.98) hint('Keep holding to open it');
   runHold();
 }
@@ -1006,11 +1174,11 @@ async function vent() {
   if (state.replying) state.replying.abort();
   const summary = { peak: Math.round(state.peak), messages: state.messages, words: state.words, caps: state.capsLines };
   const items = [...log.children];
+  { const r = valveBtn.getBoundingClientRect(); fx.ventStart(r.left + r.width / 2, r.top + r.height / 2); }
   if (!reduceMotion.matches) {
     const [x, y] = valveTop();
     let bursts = 0;
-    buzz([30, 40, 60]);
-    const jetTimer = setInterval(() => { steam.jet(x, y, 9, 150); if (++bursts >= 14) clearInterval(jetTimer); }, 50);
+    const jetTimer = setInterval(() => { steam.jet(x, y, 9, 150); if (++bursts >= 20) clearInterval(jetTimer); }, 50);
     items.forEach((el) => { if (el.classList.contains('user') || el.classList.contains('bot')) steam.fromRect(el.getBoundingClientRect()); });
   }
   items.forEach((el, i) => {
@@ -1025,7 +1193,7 @@ async function vent() {
   state.history = [];
   state.messages = 0; state.words = 0; state.capsLines = 0; state.peak = 0;
   greeting = null;
-  addSummary(summary);
+  addSummary(summary); fx.chime();
   addBot("Pressure's back to zero. Anything else bugging you, or are you good?", {
     actions: [
       ['Vent about something else', () => {
@@ -1046,7 +1214,7 @@ async function vent() {
   runHold();
 }
 function addSummary(s) {
-  const card = make('div', 'card');
+  const card = make('div', 'card'); spotlight(card);
   card.append(make('p', 'card-title', 'Vented'));
   const dl = make('dl', 'stats');
   const stat = (k, v) => { const w = make('div'); w.append(make('dt', null, k), make('dd', null, v)); dl.append(w); };
