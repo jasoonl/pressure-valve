@@ -66,3 +66,14 @@ gauge conventions (tick marks, redline zone, damped needle) are the subject-spec
 5. Hold-to-vent via pointer and via keyboard; short press does nothing; summary card appears;
    gauge returns to 0.
 6. 400px width: no horizontal overflow; dark + light screenshots; console clean.
+
+## Apple restyle (v2)
+- System fonts (SF on Apple devices), no web fonts. Large titles tracked tight, small captions tracked open.
+- iOS color system: grouped background, white/#1C1C1E cards, hairline separators, system blue for the user's bubbles, system red/orange/yellow only for pressure.
+- Gauge: sleek 240-degree arc that fills cool-to-hot with a glass knob, big rounded PSI number in the middle. Redline is a thin outer arc.
+- Valve: frosted circular button, thin line-art wheel, progress ring.
+- Reply style: iOS segmented control with a one-line caption.
+- Chat: iMessage-style bubbles; target bar and composer are frosted glass bars that stay put while messages scroll underneath.
+- Composer: pill field with a round arrow-up send button.
+- Panel is an inset rounded card on desktop, a compact strip on phones.
+- Keep every id/class the script uses, keep all behavior, rerun the whole test suite.
